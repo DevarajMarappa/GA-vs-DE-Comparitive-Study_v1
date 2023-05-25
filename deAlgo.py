@@ -35,25 +35,29 @@ def init_population(population_size, problem_dimension):
     return population
 
 # Main algorithm loop
-def de_logic(problem_dimension,benfunc):   
-        
+def de_logic(problem_dimension,benfunc):           
     population = init_population(pop_size, problem_dimension)
     best_solution = None
     best_fitness = float('-inf')
     fitness_values = []  # Store fitness values for plotting
     for generation in range(number_of_runs):
-        for i in range(pop_size):
-            target = population[i]
-            mutant = mutation(population, i)
-            trial = deCrossover(population, i, mutant, problem_dimension)
-            target_fitness , func_name = benchmarkFunctions.evaluate_functions(benfunc,target)
-            trial_fitness, func_name = benchmarkFunctions.evaluate_functions(benfunc,trial)
-            if trial_fitness > target_fitness:
-                population[i] = trial
-                if trial_fitness > best_fitness:
-                    best_solution = trial
-                    best_fitness = trial_fitness
-        fitness_values.append(best_fitness) 
+        nfc = 0  # Number of fitness evaluations
+        max_nfc=3000*problem_dimension
+        while nfc < max_nfc:  
+            for i in range(pop_size):
+                target = population[i]
+                mutant = mutation(population, i)
+                trial = deCrossover(population, i, mutant, problem_dimension)
+                target_fitness , func_name = benchmarkFunctions.evaluate_functions(benfunc,target)
+                trial_fitness, func_name = benchmarkFunctions.evaluate_functions(benfunc,trial)
+                if trial_fitness > target_fitness:
+                    population[i] = trial
+                    if trial_fitness > best_fitness:
+                        best_solution = trial
+                        best_fitness = trial_fitness
+                if nfc >= max_nfc:
+                    break
+            fitness_values.append(best_fitness) 
     fitness_values.sort(reverse=True)
     mean=str( np.mean(best_solution))
     std=str( np.std(best_solution))
@@ -75,9 +79,3 @@ def de_logic(problem_dimension,benfunc):
     out.mean=std
     out.mean=variance
     return out
-
-
-
-
-
-
